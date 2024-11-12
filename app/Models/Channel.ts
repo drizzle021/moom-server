@@ -21,6 +21,9 @@ export default class Channel extends BaseModel {
   @column()
   public adminId: number
 
+  @column()
+  public is_private: boolean
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
@@ -33,6 +36,7 @@ export default class Channel extends BaseModel {
   public messages: HasMany<typeof Message>
 
   @belongsTo(() => User, {
+    localKey: 'id',
     foreignKey: 'adminId',
 
   })

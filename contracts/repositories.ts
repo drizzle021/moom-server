@@ -11,11 +11,6 @@ declare module "@ioc:Repositories/MessageRepository" {
       author: {
         id: number,
         email: string,
-        name: string,
-        surname: string,
-        nickname: string,
-        status: string,
-        icon: string,
         createdAt: string,
         updatedAt: string,
       }
@@ -32,4 +27,19 @@ declare module "@ioc:Repositories/MessageRepository" {
   
     const MessageRepository: MessageRepositoryContract
     export default MessageRepository
+  }
+
+
+  declare module '@ioc:Repositories/ChannelRepository' {
+    import User from 'App/Models/User'
+    import Channel from 'App/Models/Channel'
+  
+    export interface SerializedChannel {
+      id: number
+      name: string
+    }
+  
+    export interface ChannelRepositoryContract {
+      create(user: User, isPublic: boolean, channelName: string): Promise<Channel>
+    }
   }

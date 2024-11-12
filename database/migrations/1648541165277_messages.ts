@@ -13,7 +13,7 @@ export default class Messages extends BaseSchema {
         .references('id')
         .inTable('channels')
         .onDelete('CASCADE')
-      table.text('message')
+      table.text('content')
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */
