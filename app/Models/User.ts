@@ -11,11 +11,11 @@ import {
 } from '@ioc:Adonis/Lucid/Orm'
 import Channel from 'App/Models/Channel'
 import Message from 'App/Models/Message'
-import { v4 as uuidv4 } from 'uuid';
+
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
-  public id: string
+  public id: number
 
   @column()
   public email: string
@@ -67,11 +67,5 @@ export default class User extends BaseModel {
     }
   }
 
-  // generate uuids
-  @beforeSave() 
-  public static async addUuid (user: User) {
-    if (!user.id) { 
-      user.id = uuidv4();
-    }
-  }
+
 }

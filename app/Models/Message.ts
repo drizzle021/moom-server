@@ -3,22 +3,20 @@ import { BaseModel,
   BelongsTo, 
   belongsTo, 
   column,
-  beforeSave,
 } from '@ioc:Adonis/Lucid/Orm'
 import User from 'App/Models/User'
 import Channel from 'App/Models/Channel'
 
-import { v4 as uuidv4 } from 'uuid';
 
 export default class Message extends BaseModel {
   @column({ isPrimary: true })
-  public id: string
+  public id: number
 
   @column()
-  public createdBy: string
+  public createdBy: number
 
   @column()
-  public channelId: string
+  public channelId: number
 
   @column()
   public content: string
@@ -39,11 +37,4 @@ export default class Message extends BaseModel {
   })
   public channel: BelongsTo<typeof Channel>
 
-  // generate uuids
-  @beforeSave() 
-  public static async addUuid (message: Message) {
-    if (!message.id) { 
-      message.id = uuidv4();
-    }
-  }
 }

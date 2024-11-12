@@ -5,10 +5,10 @@ export default class Messages extends BaseSchema {
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.uuid('id').primary()
-      table.uuid('from_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
+      table.increments('id').primary()
+      table.integer('created_by').unsigned().references('id').inTable('users').onDelete('CASCADE')
       table
-        .uuid('channel_id')
+        .integer('channel_id')
         .unsigned()
         .references('id')
         .inTable('channels')

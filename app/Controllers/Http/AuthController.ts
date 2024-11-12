@@ -7,9 +7,9 @@ export default class AuthController {
   async register({ request }: HttpContextContract) {
     const data = await request.validate(RegisterUserValidator)
     const user = await User.create(data)
-    // // join user to general channel
-    // const general = await Channel.findByOrFail('name', 'general')
-    // await user.related('channels').attach([general.id])
+    // join user to general channel
+    const general = await Channel.findByOrFail('name', 'general')
+    await user.related('channels').attach([general.id])
 
     return user
   }
