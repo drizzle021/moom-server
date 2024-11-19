@@ -30,16 +30,31 @@ declare module "@ioc:Repositories/MessageRepository" {
   }
 
 
-  declare module '@ioc:Repositories/ChannelRepository' {
-    import User from 'App/Models/User'
-    import Channel from 'App/Models/Channel'
-  
-    export interface SerializedChannel {
-      id: number
-      name: string
-    }
-  
-    export interface ChannelRepositoryContract {
-      create(user: User, isPublic: boolean, channelName: string): Promise<Channel>
-    }
+declare module '@ioc:Repositories/ChannelRepository' {
+  import User from 'App/Models/User'
+  import Channel from 'App/Models/Channel'
+
+  export interface SerializedChannel {
+    id: number
+    name: string
+    createdAt: string
+    updatedAt: string
+    picture: string
+    is_private: boolean
+    admin_id: number
+
   }
+
+  export interface ChannelRepositoryContract {
+    getAll(): Promise<SerializedChannel[]>
+    create(
+      user: User, 
+      is_private: boolean, 
+      channelName: string, 
+      admin_id: number, 
+      picture: string): Promise<SerializedChannel>
+  }
+
+  const ChannelRepository: ChannelRepositoryContract
+  export default ChannelRepository
+}

@@ -19,10 +19,13 @@ export default class Channel extends BaseModel {
   public name: string
 
   @column()
-  public adminId: number
+  public admin_id: number
 
   @column()
   public is_private: boolean
+
+  @column()
+  public picture: string
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
