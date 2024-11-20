@@ -52,6 +52,11 @@ export default class User extends BaseModel {
   })
   public sentMessages: HasMany<typeof Message>
 
+
+  @hasMany(() => Channel)
+  public adminChannels: HasMany<typeof Channel>
+
+
   @manyToMany(() => Channel, {
     pivotTable: 'channel_users',
     pivotForeignKey: 'user_id',

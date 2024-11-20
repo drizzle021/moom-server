@@ -32,5 +32,5 @@ Route.group(() => {
 }).prefix('auth')
 
 Route.group(() => {
-  Route.post('addChannel', 'ChannelController.addChannel')
+  Route.post('addChannel', 'ChannelController.addChannel').middleware('auth')
 }).prefix('channels')

@@ -8,28 +8,32 @@ import { inject } from '@adonisjs/core/build/standalone'
 export default class ChannelController {
     constructor(private channelRepository: ChannelRepositoryContract) {}
     
-    public async loadChannels({}: HttpContextContract) {
-        return this.channelRepository.getAll()
-    }
+    //public async loadChannels({}: HttpContextContract) {
+      //  return this.channelRepository.getAll()
+    //}
 
 
     public async addChannel({ request, auth, response }: HttpContextContract) {
         const data = request.all()
+        //console.log(auth.user)
+
+        console.log(data)
+        //console.log()
 
         try{
             const newChannel = await this.channelRepository.create(
                 auth.user!,
                 data.is_private,
-                data.channelName,
-                data.admin_id,
-                data.picture
+                data.name,
+                //data.admin_id
             )
-            console.log(data.name)
             const user = auth.user!
-
-            await user.related('channels').attach([newChannel.id])
+            //await newChannel.load('messages')
+            //await newChannel.load('users')
+//            await user.related('channels').attach([newChannel.id])
             return newChannel
         } catch (e) {
+            console.log(e)
             return response.status(200).send({msg: e.message,})
         }
     }

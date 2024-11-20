@@ -34,6 +34,27 @@ declare module '@ioc:Repositories/ChannelRepository' {
   import User from 'App/Models/User'
   import Channel from 'App/Models/Channel'
 
+
+  export interface SerializedChannel {
+    id: number
+    name: string
+    //joinedAt: string
+  }
+
+  export interface ChannelRepositoryContract {
+    findByName(channelName: string): Promise<Channel>
+    findByUser(user: User): Promise<SerializedChannel[]>
+    create(user: User, is_private: boolean, channelName: string): Promise<Channel>
+    updateJoinedAt(user: User, channel: Channel): Promise<void>
+    attachUser(user: User, channel: Channel): Promise<void>
+    detachUser(user: User, channel: Channel): Promise<void>
+    deleteByName(channelName: string): Promise<void>
+    delete(channel: Channel): Promise<void>
+  }
+
+  export const ChannelRepository: ChannelRepositoryContract
+}
+  /* 
   export interface SerializedChannel {
     id: number
     name: string
@@ -41,7 +62,7 @@ declare module '@ioc:Repositories/ChannelRepository' {
     updatedAt: string
     picture: string
     is_private: boolean
-    admin_id: number
+    adminId: number
 
   }
 
@@ -51,10 +72,11 @@ declare module '@ioc:Repositories/ChannelRepository' {
       user: User, 
       is_private: boolean, 
       channelName: string, 
-      admin_id: number, 
-      picture: string): Promise<SerializedChannel>
+      adminId: number, 
+    //  picture: string
+    ): Promise<SerializedChannel>
   }
 
-  const ChannelRepository: ChannelRepositoryContract
-  export default ChannelRepository
-}
+  const ChannelRepository: ChannelRepositoryContract */
+  //export default ChannelRepository
+//}

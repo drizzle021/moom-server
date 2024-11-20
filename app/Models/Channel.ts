@@ -1,15 +1,16 @@
 import { DateTime } from 'luxon'
-import { BaseModel,
+import {
+  BaseModel,
+  BelongsTo,
+  belongsTo,
   column,
   HasMany,
   hasMany,
-  belongsTo,
-  BelongsTo,
- } from '@ioc:Adonis/Lucid/Orm'
+  ManyToMany,
+  manyToMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import Message from 'App/Models/Message'
 import User from 'App/Models/User'
-
-
 
 export default class Channel extends BaseModel {
   @column({ isPrimary: true })
@@ -19,13 +20,7 @@ export default class Channel extends BaseModel {
   public name: string
 
   @column()
-  public admin_id: number
-
-  @column()
   public is_private: boolean
-
-  @column()
-  public picture: string
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
@@ -38,12 +33,21 @@ export default class Channel extends BaseModel {
   })
   public messages: HasMany<typeof Message>
 
+  @column()
+  public adminId: number
+
   @belongsTo(() => User, {
     localKey: 'id',
     foreignKey: 'adminId',
-
   })
   public admin: BelongsTo<typeof User>
 
-
+  @manyToMany(() => User, {
+    pivotTable: 'channel_users',
+    pivotForeignKey: 'channel_id',
+    pivotRelatedForeignKey: 'user_id',
+    pivotTimestamps: true,
+    //pivotColumns: ['joined_at'],
+  })
+  public users: ManyToMany<typeof User>
 }

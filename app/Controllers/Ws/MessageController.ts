@@ -24,6 +24,7 @@ export default class MessageController {
       auth.user!.id,
       content
     )
+    console.log(auth)
     // broadcast message to other users in channel
     socket.broadcast.emit('message', message)
     // return message to sender
