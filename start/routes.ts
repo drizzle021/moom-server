@@ -32,5 +32,24 @@ Route.group(() => {
 }).prefix('auth')
 
 Route.group(() => {
+  
+  Route.get(':name', 'ChannelController.getChannel').middleware('auth')
+  Route.get('channels', 'ChannelController.getUserChannels').middleware('auth')
+  Route.get(':name/check','ChannelController.tryToJoinChannel').middleware('auth')
+
+
   Route.post('addChannel', 'ChannelController.addChannel').middleware('auth')
+
+
 }).prefix('channels')
+
+
+
+
+// Route.get(':name/admin','ChannelController.checkIfUserIsAdmin').middleware('auth')
+
+
+// Route.post(':name/acceptInvite','ChannelController.acceptInvite').middleware('auth')
+
+// Route.get(':name/messages','MessagesController.loadMessages').middleware('auth')
+// --- Route.post('channels', 'ChannelController.createChannel').middleware('auth')

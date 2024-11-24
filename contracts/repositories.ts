@@ -1,34 +1,43 @@
 // here we are declaring our MessageRepository types for Repositories/MessageRepository
 // container binding. See providers/AppProvider.ts for how we are binding the implementation
 declare module "@ioc:Repositories/MessageRepository" {
-    export interface SerializedMessage {
-      createdBy: number,
-      content: string,
-      channelId: number,
+  export interface SerializedMessage {
+    createdBy: number,
+    content: string,
+    channelId: number,
+    createdAt: string,
+    updatedAt: string,
+    id: number,
+    author: {
+      id: number,
+      email: string,
       createdAt: string,
       updatedAt: string,
-      id: number,
-      author: {
-        id: number,
-        email: string,
-        createdAt: string,
-        updatedAt: string,
-      }
     }
+  }
   
-    export interface MessageRepositoryContract {
-      getAll(channelName: string): Promise<SerializedMessage[]>
-      create(
-        channelName: string,
-        userId: number,
-        content: string
-      ): Promise<SerializedMessage>
-    }
+  export interface MessageRepositoryContract {
+    getAll(channelName: string): Promise<SerializedMessage[]>
+    create(
+      channelName: string,
+      userId: number,
+      content: string
+    ): Promise<SerializedMessage>
+  }
   
-    const MessageRepository: MessageRepositoryContract
-    export default MessageRepository
+  const MessageRepository: MessageRepositoryContract
+  export default MessageRepository
+}
+
+declare module '@ioc:Repositories/UserRepository' {
+  import User from 'App/Models/User'
+
+  export interface UserRepositoryContract {
+    findByNickname(name: string): Promise<User | null>
   }
 
+  export const UserRepository: UserRepositoryContract
+}
 
 declare module '@ioc:Repositories/ChannelRepository' {
   import User from 'App/Models/User'
