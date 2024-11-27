@@ -34,10 +34,10 @@ Route.group(() => {
 Route.group(() => {
   
   Route.get(':name', 'ChannelController.getChannel').middleware('auth')
-  Route.get('channels', 'ChannelController.getUserChannels').middleware('auth')
+  Route.get('', 'ChannelController.getUserChannels').middleware('auth')
   Route.get(':name/check','ChannelController.tryToJoinChannel').middleware('auth')
-
-
+  Route.get(':name/messages','MessagesController.loadMessages').middleware('auth')
+  
   Route.post('addChannel', 'ChannelController.addChannel').middleware('auth')
 
 
@@ -51,5 +51,5 @@ Route.group(() => {
 
 // Route.post(':name/acceptInvite','ChannelController.acceptInvite').middleware('auth')
 
-// Route.get(':name/messages','MessagesController.loadMessages').middleware('auth')
+
 // --- Route.post('channels', 'ChannelController.createChannel').middleware('auth')

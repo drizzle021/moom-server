@@ -13,7 +13,7 @@ export default class ChannelController {
     //}
 
     public async getUserChannels({ auth }: HttpContextContract) {
-        return await this.channelRepository.findByUser(auth.user!)
+      return await this.channelRepository.findByUser(auth.user!)
     }
     
     public async getChannel({ params, response }: HttpContextContract) {

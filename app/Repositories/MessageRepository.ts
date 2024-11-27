@@ -1,5 +1,7 @@
+import { ModelPaginatorContract } from "@ioc:Adonis/Lucid/Orm"
 import type { MessageRepositoryContract, SerializedMessage } from "@ioc:Repositories/MessageRepository"
 import Channel from "App/Models/Channel"
+import Message from "App/Models/Message"
 
 export default class MessageRepository implements MessageRepositoryContract {
   public async getAll(channelName: string): Promise<SerializedMessage[]> {
@@ -12,6 +14,23 @@ export default class MessageRepository implements MessageRepositoryContract {
       (message) => message.serialize() as SerializedMessage
     )
   }
+
+
+  public async findAllByChannel(
+    channel: Channel,
+    page: number = 1,
+    beforeDate: Date = new Date(),
+    limit: number = 20
+  ): Promise<ModelPaginatorContract<Message>> {
+    console.log('kkkkkkkk ' + channel)
+    return await Message.query()
+      .where('channelId', channel.id)
+      .andWhere('created_at', '<=', beforeDate)
+      .preload('author')
+      .orderBy('created_at', 'desc')
+      .paginate(page, limit)
+  }
+
 
   public async create(
     channelName: string,

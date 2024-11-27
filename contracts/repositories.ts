@@ -15,9 +15,22 @@ declare module "@ioc:Repositories/MessageRepository" {
       updatedAt: string,
     }
   }
-  
+
+  import { LucidModel, ModelPaginatorContract } from '@ioc:Adonis/Lucid/Orm'
+  import Message from 'App/Models/Message'
+  import Channel from 'App/Models/Channel'
+
+
   export interface MessageRepositoryContract {
+
+
     getAll(channelName: string): Promise<SerializedMessage[]>
+    findAllByChannel(
+      channel: Channel,
+      page: number,
+      beforeDate?: Date,
+      limit?: number
+    ): Promise<ModelPaginatorContract<Message>>
     create(
       channelName: string,
       userId: number,
