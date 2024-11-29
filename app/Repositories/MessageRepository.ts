@@ -22,7 +22,6 @@ export default class MessageRepository implements MessageRepositoryContract {
     beforeDate: Date = new Date(),
     limit: number = 20
   ): Promise<ModelPaginatorContract<Message>> {
-    console.log('kkkkkkkk ' + channel)
     return await Message.query()
       .where('channelId', channel.id)
       .andWhere('created_at', '<=', beforeDate)

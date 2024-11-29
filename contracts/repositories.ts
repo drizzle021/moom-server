@@ -11,6 +11,7 @@ declare module "@ioc:Repositories/MessageRepository" {
     author: {
       id: number,
       email: string,
+      icon: string,
       createdAt: string,
       updatedAt: string,
     }
@@ -67,7 +68,7 @@ declare module '@ioc:Repositories/ChannelRepository' {
     findByName(channelName: string): Promise<Channel>
     findByUser(user: User): Promise<SerializedChannel[]>
     create(user: User, is_private: boolean, channelName: string): Promise<Channel>
-    updateJoinedAt(user: User, channel: Channel): Promise<void>
+    // updateJoinedAt(user: User, channel: Channel): Promise<void>
     attachUser(user: User, channel: Channel): Promise<void>
     detachUser(user: User, channel: Channel): Promise<void>
     deleteByName(channelName: string): Promise<void>

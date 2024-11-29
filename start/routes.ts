@@ -19,6 +19,7 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route'
+import Application from '@ioc:Adonis/Core/Application'
 
 Route.get('/', async () => {
   return { hello: 'world' }
@@ -42,6 +43,10 @@ Route.group(() => {
 
 
 }).prefix('channels')
+
+Route.get('/uploads/:file', async ({ params, response }) => { 
+  return response.download(Application.tmpPath(`uploads/${params.file}`))
+})
 
 
 

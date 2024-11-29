@@ -2,15 +2,30 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Channel from 'App/Models/Channel'
 import User from 'App/Models/User'
 import RegisterUserValidator from 'App/Validators/RegisterUserValidator'
+import { cuid } from '@ioc:Adonis/Core/Helpers'
 
 export default class AuthController {
   async register({ request }: HttpContextContract) {
     const data = await request.validate(RegisterUserValidator)
-    const user = await User.create(data)
+
+    const icon = request.file('icon')
+    let iconPath = ''
+    if (icon) { 
+      const fileName = `${cuid()}.${icon.extname}`
+      
+      await icon.moveToDisk('', {
+         name: fileName,
+         overwrite: true
+        }) 
+
+
+    // save full path with backend prefix
+    iconPath = `${request.protocol()}://${request.host()}/uploads/${fileName}`
+    }
+    const user = await User.create({...data, icon:iconPath})
     // join user to general channel
     const general = await Channel.findByOrFail('name', 'general')
     await user.related('channels').attach([general.id])
-
     return user
   }
 

@@ -42,6 +42,10 @@ export default class RegisterUserValidator {
       rules.alphaNum(),
       rules.unique({ table: 'users', column: 'nickname' })
     ]),
+    icon: schema.file.optional({ 
+      size: '4mb',
+      extnames: ['jpg', 'png', 'jpeg'], 
+    }),
   })
 
   /**
@@ -55,5 +59,12 @@ export default class RegisterUserValidator {
    * }
    *
    */
-  public messages = {}
+  public messages = { 
+    'username.required': 'Username is required', 
+    'email.required': 'Email is required', 
+    'email.email': 'Email must be a valid email address', 
+    'password.required': 'Password is required', 
+    'icon.file.extname': 'You can only upload images', 
+    'icon.file.size': 'Image size must be under 2MB',
+  }
 }

@@ -14,13 +14,16 @@ export default class MessagesController {
 
   public async loadMessages({ params, request, auth }: HttpContextContract) {
     const channel = await this.channelRepository.findByName(params.name)
+    //console.log(channel.users[7])
+
+
     const query = request.qs()
     // falsy values will be converted to 1
     const page = query.page || 1
     // null or undefined will be converted
     const date = query.date ?? new Date().toISOString()
 
-    console.log('akakakakakak')
-    return this.messageRepository.findAllByChannel(channel, page, date)
+
+    return await this.messageRepository.findAllByChannel(channel, page, date)
   }
 }

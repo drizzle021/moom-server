@@ -16,8 +16,11 @@ export default class ChannelController {
       return await this.channelRepository.findByUser(auth.user!)
     }
     
-    public async getChannel({ params, response }: HttpContextContract) {
+    public async getChannel({ params, response, request }: HttpContextContract) {
         try {
+          /* c.users.forEach(user=>
+            { user.icon = user.icon ? `${request.protocol()}://${request.host()}/uploads/${user.icon}` : null
+          }) */
           return await this.channelRepository.findByName(params.name)
         } catch (e) {
           return response.status(200).send({
@@ -28,10 +31,6 @@ export default class ChannelController {
 
     public async addChannel({ request, auth, response }: HttpContextContract) {
         const data = request.all()
-        //console.log(auth.user)
-
-        console.log(data)
-        //console.log()
 
         try{
             const newChannel = await this.channelRepository.create(
@@ -40,14 +39,14 @@ export default class ChannelController {
                 data.name,
                 //data.admin_id
             )
-            const user = auth.user!
-            //await newChannel.load('messages')
-            //await newChannel.load('users')
-//            await user.related('channels').attach([newChannel.id])
+            //const user = auth.user!
+            await newChannel.load('messages')
+            await newChannel.load('users')
+            
             return newChannel
         } catch (e) {
             console.log(e)
-            return response.status(200).send({msg: e.message,})
+            return response.status(500).send({msg: e.message,})
         }
     }
 

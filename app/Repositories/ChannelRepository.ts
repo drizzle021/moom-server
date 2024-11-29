@@ -10,6 +10,7 @@ export default class ChannelRepository implements ChannelRepositoryContract {
     return await Channel.query()
       .where('name', channelName)
       .preload('users')
+      .preload('messages')
       .firstOrFail()
   }
 
@@ -22,16 +23,16 @@ export default class ChannelRepository implements ChannelRepositoryContract {
     })
   }
 
-  public async updateJoinedAt(user: User, channel: Channel): Promise<void> {
+/*   public async updateJoinedAt(user: User, channel: Channel): Promise<void> {
     await user.related('channels').sync(
       {
         [channel.id]: {
           joined_at: new Date(),
         },
       },
-      false // do not delete others
+      false
     )
-  }
+  } */
 
   public async create(
     user: User,

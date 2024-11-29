@@ -23,10 +23,10 @@ export default class User extends BaseModel {
   @column({ serializeAs: null })
   public password: string
 
-  @column({ serializeAs: null })
+  @column()
   public name: string
 
-  @column({ serializeAs: null })
+  @column()
   public surname: string
 
   @column()
@@ -36,7 +36,7 @@ export default class User extends BaseModel {
   public status: string
 
   @column()
-  public icon: string
+  public icon: string | null
 
   @column()
   public rememberMeToken?: string
