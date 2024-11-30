@@ -37,7 +37,7 @@ export default class ChannelController {
     //   return { error: error }
     // }
     await this.channelRepository.attachUser(user, channel)
-    await this.channelRepository.updateJoinedAt(user, channel)
+    // await this.channelRepository.updateJoinedAt(user, channel)
     socket.broadcast.emit('userJoined', user)
     return channel
   }

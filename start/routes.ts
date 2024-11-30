@@ -50,7 +50,6 @@ Route.get('/uploads/:file', async ({ params, response }) => {
 
 
 
-
 // Route.get(':name/admin','ChannelController.checkIfUserIsAdmin').middleware('auth')
 
 
