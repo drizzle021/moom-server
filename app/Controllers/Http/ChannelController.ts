@@ -21,7 +21,6 @@ export default class ChannelController {
           /* c.users.forEach(user=>
             { user.icon = user.icon ? `${request.protocol()}://${request.host()}/uploads/${user.icon}` : null
           }) */
-          console.log('jjjjjjjjjjjjjjjj')
           return await this.channelRepository.findByName(params.name)
         } catch (e) {
           return response.status(200).send({
@@ -53,12 +52,9 @@ export default class ChannelController {
 
     public async tryToJoinChannel({ params, auth }: HttpContextContract) {
         let channel
-        console.log('anyadkurvafasz')
         try {
           channel = await this.channelRepository.findByName(params.name)
-          console.log('BACKEND BABY')
-          console.log(channel)
-          console.log(params.name)
+
         } catch (e) {
           // new channel will be created
           return {
