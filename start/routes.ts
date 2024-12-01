@@ -38,7 +38,8 @@ Route.group(() => {
   Route.get('', 'ChannelController.getUserChannels').middleware('auth')
   Route.get(':name/check','ChannelController.tryToJoinChannel').middleware('auth')
   Route.get(':name/messages','MessagesController.loadMessages').middleware('auth')
-  
+  Route.get(':name/admin','ChannelController.checkIfUserIsAdmin').middleware('auth')
+
   Route.post('addChannel', 'ChannelController.addChannel').middleware('auth')
 
 
@@ -47,10 +48,6 @@ Route.group(() => {
 Route.get('/uploads/:file', async ({ params, response }) => { 
   return response.download(Application.tmpPath(`uploads/${params.file}`))
 })
-
-
-
-// Route.get(':name/admin','ChannelController.checkIfUserIsAdmin').middleware('auth')
 
 
 // Route.post(':name/acceptInvite','ChannelController.acceptInvite').middleware('auth')

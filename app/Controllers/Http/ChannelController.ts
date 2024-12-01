@@ -2,7 +2,8 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { ChannelRepositoryContract } from '@ioc:Repositories/ChannelRepository'
 import { inject } from '@adonisjs/core/build/standalone'
 //import { WsContextContract } from '@ioc:Ruby184/Socket.IO/WsContext'
-
+import Channel from 'App/Models/Channel'
+import User from 'App/Models/User'
 
 @inject(['Repositories/ChannelRepository'])
 export default class ChannelController {
@@ -11,6 +12,15 @@ export default class ChannelController {
     //public async loadChannels({}: HttpContextContract) {
       //  return this.channelRepository.getAll()
     //}
+
+
+
+    public async checkIfUserIsAdmin({ params, auth }: HttpContextContract) {
+      const channel = await this.channelRepository.findByName(params.name)
+      return channel.adminId === auth.user!.id
+    }
+
+
 
     public async getUserChannels({ auth }: HttpContextContract) {
       return await this.channelRepository.findByUser(auth.user!)
@@ -52,6 +62,8 @@ export default class ChannelController {
 
     public async tryToJoinChannel({ params, auth }: HttpContextContract) {
         let channel
+        const usertofind = auth.user!
+        
         try {
           channel = await this.channelRepository.findByName(params.name)
 
@@ -62,18 +74,20 @@ export default class ChannelController {
             channel: null,
           }
         }
-        // const user = auth.user!
-        // const error = checkForErrors(
-        //   {
-        //     channelShouldBePublic: true,
-        //     userShouldNotBeInChannel: true,
-        //   },
-        //   { channel, user }
-        // )
-        // if (error) {
-        //   return { error: error }
-        // }
-    
+
+        if (!channel.isPublic) {
+          const error = 'Channel is not public'
+          return { error: error }
+        }
+
+
+        const check = channel.users.find((user) => user.id === usertofind.id)
+        if (check){
+          const error = 'User is already in the channel'
+          return {error : error}
+        }
+
+        // LOOK AT KICKS IN CASE OF PERMANENT BAN
         // const kickCount = await this.kickRepository.countUserKicks(
         //   user.id,
         //   channel.id
@@ -83,6 +97,7 @@ export default class ChannelController {
         //     error: 'You are banned from this channel',
         //   }
         // }
+
         // return existing channel
         return {
           success: true,

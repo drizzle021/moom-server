@@ -19,7 +19,7 @@ Ws.namespace('/')
   
   .connected("ActivityController.onConnected")
   .disconnected("ActivityController.onDisconnected")
-
+  .on("inviteUser", "ChannelController.inviteUser")
 
 
 // this is dynamic namespace, in controller methods we can use params.name
@@ -28,4 +28,7 @@ Ws.namespace("channels/:name")
   .on("loadMessages", "MessageController.loadMessages")
   .on("addMessage", "MessageController.addMessage")
   .on("addUser", "ChannelController.addUser")
+  .on('deleteChannel', 'ChannelController.deleteChannel')
+  .on('leaveChannel', 'ChannelController.leaveChannel')
   .on("fos", "ChannelController.fos")
+
