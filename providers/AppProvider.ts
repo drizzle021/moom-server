@@ -13,6 +13,15 @@ export default class AppProvider {
     this.app.container.singleton('Repositories/ChannelRepository', (container) => {
       return container.make('App/Repositories/ChannelRepository')
     })
+
+    this.app.container.singleton('Repositories/UserRepository', (container) => {
+      // just make instance of app/Repositories/MessageRepository class
+        return container.make('App/Repositories/UserRepository')
+    })
+
+      this.app.container.singleton('Repositories/KickRepository', (container) => {
+      return container.make('App/Repositories/KickRepository')
+    })
   }
 
   public async boot() {

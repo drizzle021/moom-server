@@ -77,6 +77,30 @@ declare module '@ioc:Repositories/ChannelRepository' {
 
   export const ChannelRepository: ChannelRepositoryContract
 }
+
+
+declare module '@ioc:Repositories/KickRepository' {
+  import Kick from 'App/Models/Kick'
+
+  export interface KickRepositoryContract {
+    findByTriple(
+      kickerId: number,
+      userId: number,
+      channelId: number
+    ): Promise<Kick | null>
+    create(kickerId: number, userId: number, channelId: number): Promise<Kick>
+    countUserKicks(userId: number, channelId: number): Promise<number>
+    deleteAllByUserIdAndChannelId(
+      userId: number,
+      channelId: number
+    ): Promise<void>
+  }
+
+  export const KickRepository: KickRepositoryContract
+}
+
+
+
   /* 
   export interface SerializedChannel {
     id: number

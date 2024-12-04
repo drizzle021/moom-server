@@ -24,8 +24,8 @@ export default class AuthController {
     }
     const user = await User.create({...data, icon:iconPath})
     // join user to general channel
-    const general = await Channel.findByOrFail('name', 'general')
-    await user.related('channels').attach([general.id])
+    //const general = await Channel.findByOrFail('name', 'general')
+    //await user.related('channels').attach([general.id])
     return user
   }
 

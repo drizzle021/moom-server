@@ -23,16 +23,14 @@ export default class ChannelRepository implements ChannelRepositoryContract {
     })
   }
 
-/*   public async updateJoinedAt(user: User, channel: Channel): Promise<void> {
-    await user.related('channels').sync(
-      {
-        [channel.id]: {
+  public async updateJoinedAt(user: User, channel: Channel): Promise<void> {
+    await user.related('channels').sync({[channel.id]: {
           joined_at: new Date(),
         },
       },
       false
     )
-  } */
+  }
 
   public async create(user: User, is_private: boolean, channelName: string): Promise<Channel> {
     return await user.related('channels').create({

@@ -2,8 +2,8 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { ChannelRepositoryContract } from '@ioc:Repositories/ChannelRepository'
 import { inject } from '@adonisjs/core/build/standalone'
 //import { WsContextContract } from '@ioc:Ruby184/Socket.IO/WsContext'
-import Channel from 'App/Models/Channel'
-import User from 'App/Models/User'
+// import Channel from 'App/Models/Channel'
+// import User from 'App/Models/User'
 
 @inject(['Repositories/ChannelRepository'])
 export default class ChannelController {

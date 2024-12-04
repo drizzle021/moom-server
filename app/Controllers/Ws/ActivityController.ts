@@ -1,7 +1,19 @@
 import type { WsContextContract } from "@ioc:Ruby184/Socket.IO/WsContext";
+import { ChannelRepositoryContract } from '@ioc:Repositories/ChannelRepository'
 import User from "App/Models/User";
+import { inject } from '@adonisjs/core/build/standalone'
+
+
+@inject([
+  'Repositories/ChannelRepository'
+])
 
 export default class ActivityController {
+  constructor(
+    private channelRepository: ChannelRepositoryContract
+  ) {}
+
+
   private getUserRoom(user: User): string {
     return `user:${user.id}`;
   }
@@ -13,7 +25,7 @@ export default class ActivityController {
 
     // this is first connection for given user
     if (userSockets.size === 0) {
-      socket.broadcast.emit("user:online", auth.user);
+      socket.broadcast.emit("user:ONLINE", auth.user);
     }
 
     // add this socket to user room
@@ -47,9 +59,16 @@ export default class ActivityController {
     // user is disconnected
     if (userSockets.size === 0) {
       // notify other users
-      socket.broadcast.emit("user:offline", auth.user);
+      socket.broadcast.emit("user:OFFLINE", auth.user);
     }
 
     logger.info("websocket disconnected", reason);
   }
+
+
+  public async changeState({ socket, auth }: WsContextContract, state: string) {
+    socket.broadcast.emit(`user:${state}`, auth.user)
+
+  }
+
 }
