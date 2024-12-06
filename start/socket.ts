@@ -13,6 +13,7 @@ Ws.namespace('/')
   .connected('ActivityController.onConnected')
   .disconnected('ActivityController.onDisconnected')
   .on('changeState', 'ActivityController.changeState')
+  .on('inviteUser', 'ChannelController.inviteUser')
 
   // .connected(({ socket }) => {
   //   console.log('new websocket connection: ', socket.id)
@@ -30,6 +31,5 @@ Ws.namespace('channels/:name')
   .on('deleteChannel', 'ChannelController.deleteChannel')
   .on('leaveChannel', 'ChannelController.leaveChannel')
   .on('kickUser', 'ChannelController.kickUser')
-  .on('inviteUser', 'ChannelController.inviteUser')
   .on('revokeUser', 'ChannelController.revokeUser')
 

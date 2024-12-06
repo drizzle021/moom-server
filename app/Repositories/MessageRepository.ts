@@ -16,18 +16,22 @@ export default class MessageRepository implements MessageRepositoryContract {
   }
 
 
-  public async findAllByChannel(
-    channel: Channel,
+  public async findPaginated(
+    channelName: string,
     page: number = 1,
-    beforeDate: Date = new Date(),
-    limit: number = 20
+    limit: number = 15
   ): Promise<ModelPaginatorContract<Message>> {
+    const channel = await Channel.query()
+      .where("name", channelName)
+      .firstOrFail()
+
     return await Message.query()
       .where('channelId', channel.id)
-      .andWhere('created_at', '<=', beforeDate)
       .preload('author')
       .orderBy('created_at', 'desc')
       .paginate(page, limit)
+
+      
   }
 
 

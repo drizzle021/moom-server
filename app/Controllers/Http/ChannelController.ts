@@ -42,6 +42,8 @@ export default class ChannelController {
     public async addChannel({ request, auth, response }: HttpContextContract) {
         const data = request.all()
 
+        console.log("THIS GETS CALLED")
+
         try{
             const newChannel = await this.channelRepository.create(
                 auth.user!,
@@ -75,7 +77,7 @@ export default class ChannelController {
           }
         }
 
-        if (!channel.isPublic) {
+        if (channel.is_private) {
           const error = 'Channel is not public'
           return { error: error }
         }

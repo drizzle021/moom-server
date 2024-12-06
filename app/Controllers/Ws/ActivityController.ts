@@ -1,19 +1,7 @@
 import type { WsContextContract } from "@ioc:Ruby184/Socket.IO/WsContext";
-import { ChannelRepositoryContract } from '@ioc:Repositories/ChannelRepository'
 import User from "App/Models/User";
-import { inject } from '@adonisjs/core/build/standalone'
-
-
-@inject([
-  'Repositories/ChannelRepository'
-])
 
 export default class ActivityController {
-  constructor(
-    private channelRepository: ChannelRepositoryContract
-  ) {}
-
-
   private getUserRoom(user: User): string {
     return `user:${user.id}`;
   }
@@ -70,5 +58,7 @@ export default class ActivityController {
     socket.broadcast.emit(`user:${state}`, auth.user)
 
   }
+
+
 
 }

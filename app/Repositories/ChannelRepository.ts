@@ -15,21 +15,22 @@ export default class ChannelRepository implements ChannelRepositoryContract {
   }
 
   public async findByUser(user: User): Promise<SerializedChannel[]> {
-    const channels = await user.related('channels').query()
+    const channels = await user
+    .related('channels')
+    .query()
+    .pivotColumns(['created_at'])
+    .orderBy('channel_users.created_at', 'desc')
+
     return channels.map((channel) => {
       const serializedChannel = channel.serialize() as SerializedChannel
-      //serializedChannel.joinedAt = channel.$extras.pivot_joined_at
       return serializedChannel
     })
-  }
-
-  public async updateJoinedAt(user: User, channel: Channel): Promise<void> {
-    await user.related('channels').sync({[channel.id]: {
-          joined_at: new Date(),
-        },
-      },
-      false
-    )
+    
+/*     const channels = await user.related('channels').query()
+    return channels.map((channel) => {
+      const serializedChannel = channel.serialize() as SerializedChannel
+      return serializedChannel
+    }) */
   }
 
   public async create(user: User, is_private: boolean, channelName: string): Promise<Channel> {

@@ -26,10 +26,9 @@ declare module "@ioc:Repositories/MessageRepository" {
 
 
     getAll(channelName: string): Promise<SerializedMessage[]>
-    findAllByChannel(
-      channel: Channel,
+    findPaginated(
+      channelName: string,
       page: number,
-      beforeDate?: Date,
       limit?: number
     ): Promise<ModelPaginatorContract<Message>>
     create(
@@ -61,14 +60,12 @@ declare module '@ioc:Repositories/ChannelRepository' {
   export interface SerializedChannel {
     id: number
     name: string
-    //joinedAt: string
   }
 
   export interface ChannelRepositoryContract {
     findByName(channelName: string): Promise<Channel>
     findByUser(user: User): Promise<SerializedChannel[]>
     create(user: User, is_private: boolean, channelName: string): Promise<Channel>
-    // updateJoinedAt(user: User, channel: Channel): Promise<void>
     attachUser(user: User, channel: Channel): Promise<void>
     detachUser(user: User, channel: Channel): Promise<void>
     deleteByName(channelName: string): Promise<void>
@@ -99,31 +96,3 @@ declare module '@ioc:Repositories/KickRepository' {
   export const KickRepository: KickRepositoryContract
 }
 
-
-
-  /* 
-  export interface SerializedChannel {
-    id: number
-    name: string
-    createdAt: string
-    updatedAt: string
-    picture: string
-    is_private: boolean
-    adminId: number
-
-  }
-
-  export interface ChannelRepositoryContract {
-    getAll(): Promise<SerializedChannel[]>
-    create(
-      user: User, 
-      is_private: boolean, 
-      channelName: string, 
-      adminId: number, 
-    //  picture: string
-    ): Promise<SerializedChannel>
-  }
-
-  const ChannelRepository: ChannelRepositoryContract */
-  //export default ChannelRepository
-//}

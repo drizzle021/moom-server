@@ -28,7 +28,6 @@ export default class MessageController {
   }
 
   public async addMessage({ params, socket, auth }: WsContextContract, content: string) {
-    console.log('MESSAGES')
     const message = await this.messageRepository.create(
       params.name,
       auth.user!.id,
@@ -41,10 +40,8 @@ export default class MessageController {
   }
 
   public async inviteUser({ auth, socket }: WsContextContract, channelParam: string, userParam: string) {
-    console.log('asdasdasdasdsad')
     const channel = await this.channelRepository.findByName(channelParam)
     const userToGetInvited = await this.userRepository.findByNickname(userParam)
-    console.log('ide eljutok !!!!!!!!!!!!!!!!!!!')
     // const error = checkForErrors(
     //   {
     //     userShouldExist: true,
@@ -84,8 +81,7 @@ export default class MessageController {
     // }
 
     await this.channelRepository.attachUser(userToGetInvited!, channel)
-    socket.broadcast.emit('newInvite', userToGetInvited, channel)
-    socket.nsp.emit('invitedUserJoined', userToGetInvited, channel)
+
     return {
       success: true,
     }

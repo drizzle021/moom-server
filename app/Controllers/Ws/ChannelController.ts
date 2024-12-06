@@ -1,8 +1,9 @@
-import type { WsContextContract } from '@ioc:Ruby184/Socket.IO/WsContext';
+import type { WsContextContract } from '@ioc:Ruby184/Socket.IO/WsContext'
 import { ChannelRepositoryContract } from '@ioc:Repositories/ChannelRepository'
 import { UserRepositoryContract } from '@ioc:Repositories/UserRepository'
 import { KickRepositoryContract } from '@ioc:Repositories/KickRepository'
 import { inject } from '@adonisjs/core/build/standalone'
+import ActivityController from './ActivityController'
 // import Channel from 'App/Models/Channel'
 // import User from 'App/Models/User'
 
@@ -29,42 +30,18 @@ export default class ChannelController {
 
     const channel = await this.channelRepository.findByName(params.name)
 
-     /* const error = checkForErrors(
-       {
-         channelShouldBePublic: true,
-         userShouldNotBeInChannel: true,
-       },
-       { channel, user }
-     )
-     if (error) {
-       return { error: error }
-     } */
     await this.channelRepository.attachUser(user, channel)
-    // await this.channelRepository.updateJoinedAt(user, channel)
-    socket.broadcast.emit('userJoined', user)
+    
+    socket.broadcast.emit('userJoined', user, channel)
+
     return channel
   }
 
-  public async inviteUser({ auth, socket }: WsContextContract, channelParam: string, userParam: string) {
-
+  public async inviteUser({ auth, socket }: WsContextContract,  channelParam: string, userParam: string) {
     const channel = await this.channelRepository.findByName(channelParam)
-    const userToGetInvited = await this.userRepository.findByNickname(userParam)
+    const userToInvite = await this.userRepository.findByNickname(userParam)
 
-    // const error = checkForErrors(
-    //   {
-    //     userShouldExist: true,
-    //     userShouldNotBeInChannel: true,
-    //   },
-    //   {
-    //     channel: channel,
-    //     user: userToGetInvited,
-    //   }
-    // )
-    // if (error) {
-    //   return { error: error }
-    // }
     const isUserAdmin = channel.adminId === auth.user!.id
-
 
     if (!isUserAdmin && channel.is_private) {
       return { error: 'You are not admin of this channel.' }
@@ -89,21 +66,25 @@ export default class ChannelController {
     //   )
     // }
 
-    await this.channelRepository.attachUser(userToGetInvited!, channel)
-    socket.broadcast.emit('newInvite', userToGetInvited, channel)
-    socket.nsp.emit('invitedUserJoined', userToGetInvited, channel)
+    await this.channelRepository.attachUser(userToInvite!, channel)
+    
+
+    socket.nsp.emit('userInvited', userToInvite, channel)
     return {
       success: true,
     }
   }
 
-  
-  public async revokeUser({ auth, socket }: WsContextContract, channelParam: string, userParam: string) {
+  public async revokeUser(
+    { auth, socket }: WsContextContract,
+    channelParam: string,
+    userParam: string
+  ) {
     const user = auth.user!
     const channel = await this.channelRepository.findByName(channelParam)
     const userToKick = await this.userRepository.findByNickname(userParam)
 
-    if(userToKick==null){
+    if (userToKick == null) {
       return
     }
 
@@ -112,7 +93,6 @@ export default class ChannelController {
     if (channel.adminId === user.id) {
       await this.channelRepository.detachUser(userToKick, channel)
       socket.broadcast.emit('userLeft', userToKick)
-
     }
   }
 
@@ -129,12 +109,11 @@ export default class ChannelController {
     }
   }
 
-
   public async deleteChannel({ auth, params, socket }: WsContextContract) {
     const channelName = params.name
     const channel = await this.channelRepository.findByName(channelName)
 
-    if (channel.adminId === auth.user!.id){
+    if (channel.adminId === auth.user!.id) {
       console.log('delete')
       await this.channelRepository.delete(channel)
       socket.nsp.emit('channelDeleted', channel.name)
@@ -146,10 +125,7 @@ export default class ChannelController {
       console.log(error)
       return { error: error }
     }
-
   }
-
-
 
   public async kickUser({ auth, socket, params }: WsContextContract, ...args: any[]) {
     const kicker = auth.user!
@@ -193,19 +169,12 @@ export default class ChannelController {
 
     // ak ten co niekoho kickuje je admin
     if (channel.adminId === kicker.id) {
-      const kickCount = await this.kickRepository.countUserKicks(
-        userToKick!.id,
-        channel.id
-      )
+      const kickCount = await this.kickRepository.countUserKicks(userToKick!.id, channel.id)
       // ak to nie je revoke tak je to ban.
       if (!isRevoke) {
         // vytvorime pocet kickov tak aby boli 3
         for (let i = kickCount; i < 3; i++) {
-          await this.kickRepository.create(
-            kicker.id,
-            userToKick!.id,
-            channel.id
-          )
+          await this.kickRepository.create(kicker.id, userToKick!.id, channel.id)
         }
       }
     } else {
@@ -228,5 +197,4 @@ export default class ChannelController {
       success: true,
     }
   }
-
 }
