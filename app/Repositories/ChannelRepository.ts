@@ -26,11 +26,6 @@ export default class ChannelRepository implements ChannelRepositoryContract {
       return serializedChannel
     })
     
-/*     const channels = await user.related('channels').query()
-    return channels.map((channel) => {
-      const serializedChannel = channel.serialize() as SerializedChannel
-      return serializedChannel
-    }) */
   }
 
   public async create(user: User, is_private: boolean, channelName: string): Promise<Channel> {

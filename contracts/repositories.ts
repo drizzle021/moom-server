@@ -23,8 +23,6 @@ declare module "@ioc:Repositories/MessageRepository" {
 
 
   export interface MessageRepositoryContract {
-
-
     getAll(channelName: string): Promise<SerializedMessage[]>
     findPaginated(
       channelName: string,
@@ -80,17 +78,10 @@ declare module '@ioc:Repositories/KickRepository' {
   import Kick from 'App/Models/Kick'
 
   export interface KickRepositoryContract {
-    findByTriple(
-      kickerId: number,
-      userId: number,
-      channelId: number
-    ): Promise<Kick | null>
+    checkIfAlreadyKicked(kickerId: number, userId: number, channelId: number): Promise<Kick | null>
     create(kickerId: number, userId: number, channelId: number): Promise<Kick>
     countUserKicks(userId: number, channelId: number): Promise<number>
-    deleteAllByUserIdAndChannelId(
-      userId: number,
-      channelId: number
-    ): Promise<void>
+    unban(userId: number, channelId: number): Promise<void>
   }
 
   export const KickRepository: KickRepositoryContract

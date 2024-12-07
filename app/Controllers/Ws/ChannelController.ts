@@ -3,7 +3,7 @@ import { ChannelRepositoryContract } from '@ioc:Repositories/ChannelRepository'
 import { UserRepositoryContract } from '@ioc:Repositories/UserRepository'
 import { KickRepositoryContract } from '@ioc:Repositories/KickRepository'
 import { inject } from '@adonisjs/core/build/standalone'
-import ActivityController from './ActivityController'
+
 // import Channel from 'App/Models/Channel'
 // import User from 'App/Models/User'
 
@@ -30,8 +30,16 @@ export default class ChannelController {
 
     const channel = await this.channelRepository.findByName(params.name)
 
+    const kickCount = await this.kickRepository.countUserKicks(user!.id, channel.id)
+    // USER IS BANNED
+    if (kickCount > 2) {
+      return {
+        error: 'This user is banned from this channel',
+      }
+    }
+
     await this.channelRepository.attachUser(user, channel)
-    
+    await new Promise(resolve => setTimeout(resolve, 2000));
     socket.broadcast.emit('userJoined', user, channel)
 
     return channel
@@ -48,51 +56,26 @@ export default class ChannelController {
     }
 
     // CHECK AND UNBAN USER
-    // const kickCount = await this.kickRepository.countUserKicks(
-    //   userToGetInvited!.id,
-    //   channel.id
-    // )
-    // if (!isUserAdmin) {
-    //   if (kickCount > 2) {
-    //     return {
-    //       error: 'This user is banned from this channel',
-    //     }
-    //   }
-    // } else {
-    //   // unban user
-    //   await this.kickRepository.deleteAllByUserIdAndChannelId(
-    //     userToGetInvited!.id,
-    //     channel.id
-    //   )
-    // }
+    const kickCount = await this.kickRepository.countUserKicks(userToInvite!.id, channel.id)
+    // USER IS BANNED
+    if (!isUserAdmin) {
+      if (kickCount > 2) {
+        return {
+          error: 'This user is banned from this channel',
+        }
+      }
+    } 
+    // UNBAN USER
+    else {
+      await this.kickRepository.unban(userToInvite!.id,channel.id)
+    }
 
     await this.channelRepository.attachUser(userToInvite!, channel)
-    
+    const isrevoke = false
+    socket.nsp.emit('userInvited', userToInvite, channel, isrevoke)
 
-    socket.nsp.emit('userInvited', userToInvite, channel)
     return {
       success: true,
-    }
-  }
-
-  public async revokeUser(
-    { auth, socket }: WsContextContract,
-    channelParam: string,
-    userParam: string
-  ) {
-    const user = auth.user!
-    const channel = await this.channelRepository.findByName(channelParam)
-    const userToKick = await this.userRepository.findByNickname(userParam)
-
-    if (userToKick == null) {
-      return
-    }
-
-    console.log(channel + userParam)
-
-    if (channel.adminId === user.id) {
-      await this.channelRepository.detachUser(userToKick, channel)
-      socket.broadcast.emit('userLeft', userToKick)
     }
   }
 
@@ -102,10 +85,10 @@ export default class ChannelController {
 
     if (channel.adminId === user.id) {
       await this.channelRepository.delete(channel)
-      socket.nsp.emit('channelDeleted', channel.name)
+      socket.broadcast.emit('channelDeleted', channel.name)
     } else {
       await this.channelRepository.detachUser(user, channel)
-      socket.broadcast.emit('userLeft', user)
+      socket.broadcast.emit('userLeft', user, channel)
     }
   }
 
@@ -116,7 +99,7 @@ export default class ChannelController {
     if (channel.adminId === auth.user!.id) {
       console.log('delete')
       await this.channelRepository.delete(channel)
-      socket.nsp.emit('channelDeleted', channel.name)
+      socket.broadcast.emit('channelDeleted', channel.name)
     }
 
     // hova kellene kiirni hogy nem admin    ?
@@ -127,15 +110,36 @@ export default class ChannelController {
     }
   }
 
-  public async kickUser({ auth, socket, params }: WsContextContract, ...args: any[]) {
+
+  public async revokeUser({ auth, socket }: WsContextContract, channelParam: string, userParam: string) {
+    const user = auth.user!
+    const channel = await this.channelRepository.findByName(channelParam)
+    const userToRevoke = await this.userRepository.findByNickname(userParam)
+    if (userToRevoke == null) {
+      return
+    }
+
+    console.log(channel + userParam)
+
+    if (channel.adminId === user.id) {
+      await this.channelRepository.detachUser(userToRevoke, channel)
+      const isrevoke = true
+      // socket.nsp.emit('userInvited', userToRevoke, channel, isrevoke)
+
+      socket.nsp.emit('userLeft', userToRevoke, channel)
+    }
+  }
+
+  public async kickUser({ auth, socket }: WsContextContract, channelName: string, user: string) {
     const kicker = auth.user!
-    const userParam = ''
-    const isRevoke = ''
-    const channel = await this.channelRepository.findByName(params.name)
-    console.log('channel to kick from: ' + channel)
-    console.log('user ' + userParam)
-    const userToKick = await this.userRepository.findByNickname(userParam)
-    console.log('user to kick: ' + userToKick)
+    const userToKick = await this.userRepository.findByNickname(user)
+
+    const channel = await this.channelRepository.findByName(channelName)
+    const channel_private = channel.is_private
+    console.log(channel_private)
+    console.log('channel to kick from: ' + channel.name + ' <' + channel.is_private + '>')
+    console.log('kicker: ' + kicker.nickname)
+    console.log('user to kick: ' + userToKick?.nickname)
 
     // const error = checkForErrors(
     //   {
@@ -150,51 +154,65 @@ export default class ChannelController {
     // if (error) {
     //   return { error: error }
     // }
+
+    // DONT KICK ADMIN
     if (channel.adminId === userToKick!.id) {
       return {
         error: 'You cannot kick admin.',
       }
     }
+
+    // DONT KICK YOURSELF
     if (userToKick!.id === kicker.id) {
       return {
         error: 'You can not kick yourself.',
       }
     }
-    // ak je to revoke alebo kanal nie je public, tak musi byt pouzivatel admin
-    if ((isRevoke || channel.is_private) && channel.adminId !== kicker.id) {
+
+    // IF ADMIN IS KICKER -> DOES NOT MATTER IF PUBLIC OR PRIVATE -> BAN
+    if (kicker.id === channel.adminId){
+      const kickCount = await this.kickRepository.countUserKicks(userToKick!.id, channel.id)
+
+      // CREATE 3 records in kickrepository -> BAN
+      for (let i = kickCount; i < 3; i++) {
+        await this.kickRepository.create(kicker.id, userToKick!.id, channel.id)
+      }
+
+      // REMOVE USER
+      await this.channelRepository.detachUser(userToKick!, channel)
+      socket.nsp.emit('userLeft', userToKick, channel)
+      
+      // return {
+      //   success: true
+      // }
+    }
+
+    // NOT ADMIN -> CHANNEL IS PRIVATE -> CAN NOT KICK
+    if (kicker.id !== channel.adminId && channel_private) {
       return {
-        error: 'You are not admin of this channel.',
+        error: 'You are not admin, and the channel is private.',
       }
     }
 
-    // ak ten co niekoho kickuje je admin
-    if (channel.adminId === kicker.id) {
-      const kickCount = await this.kickRepository.countUserKicks(userToKick!.id, channel.id)
-      // ak to nie je revoke tak je to ban.
-      if (!isRevoke) {
-        // vytvorime pocet kickov tak aby boli 3
-        for (let i = kickCount; i < 3; i++) {
-          await this.kickRepository.create(kicker.id, userToKick!.id, channel.id)
-        }
-      }
-    } else {
-      const wasAlreadyKicked = await this.kickRepository.findByTriple(
-        kicker.id,
-        userToKick!.id,
-        channel.id
-      )
-      if (wasAlreadyKicked) {
+    // NOT ADMIN -> CHANNEL IS PUBLIC -> COUNT KICKS 3?
+    if (kicker.id !== channel.adminId && !channel_private) {
+      const alreadyKicked = await this.kickRepository.checkIfAlreadyKicked(kicker.id, userToKick!.id, channel.id)
+      if (alreadyKicked) {
         return {
-          error: 'You have already kicked this user once.',
+          error: 'You have already kicked this user.',
         }
       }
-      //vytvori sa jeden zaznam
+      // CREATE A KICK
       await this.kickRepository.create(kicker.id, userToKick!.id, channel.id)
+
+      // REMOVE USER
+      await this.channelRepository.detachUser(userToKick!, channel)
+      socket.nsp.emit('userLeft', userToKick, channel)
+      
+      // return {
+      //   success: true
+      // }
     }
-    await this.channelRepository.detachUser(userToKick!, channel)
-    socket.nsp.emit('userKick', userToKick)
-    return {
-      success: true,
-    }
+
   }
 }

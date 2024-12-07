@@ -2,21 +2,19 @@ import { KickRepositoryContract } from '@ioc:Repositories/KickRepository'
 import Kick from 'App/Models/Kick'
 
 export default class KickRepository implements KickRepositoryContract {
-  public async findByTriple(
-    kickerId: number,
-    userId: number,
-    channelId: number
-  ): Promise<Kick | null> {
+  public async create(kickerId: number, userId: number, channelId: number): Promise<Kick> {
+    return await Kick.create({kickerId, userId, channelId})
+  }
+
+  public async checkIfAlreadyKicked(kickerId: number, userId: number, channelId: number): Promise<Kick | null> {
     return await Kick.query()
       .where('kicker_id', kickerId)
       .andWhere('user_id', userId)
       .andWhere('channel_id', channelId)
       .first()
   }
-  public async countUserKicks(
-    userId: number,
-    channelId: number
-  ): Promise<number> {
+
+  public async countUserKicks(userId: number, channelId: number): Promise<number> {
     const kickQuery = await Kick.query()
       .where('user_id', userId)
       .andWhere('channel_id', channelId)
@@ -24,22 +22,7 @@ export default class KickRepository implements KickRepositoryContract {
     return kickQuery[0].$extras.count
   }
 
-  public async create(
-    kickerId: number,
-    userId: number,
-    channelId: number
-  ): Promise<Kick> {
-    return await Kick.create({
-      kickerId,
-      userId,
-      channelId,
-    })
-  }
-
-  public async deleteAllByUserIdAndChannelId(
-    userId: number,
-    channelId: number
-  ): Promise<void> {
+  public async unban(userId: number, channelId: number): Promise<void> {
     await Kick.query()
       .where('user_id', userId)
       .andWhere('channel_id', channelId)

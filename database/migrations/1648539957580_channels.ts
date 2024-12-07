@@ -10,6 +10,7 @@ export default class Channels extends BaseSchema {
       table.string('name', 100).notNullable().unique()
       table.boolean('is_private')
       table.string('picture', 100)
+      
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */

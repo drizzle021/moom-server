@@ -15,11 +15,10 @@ export default class AppProvider {
     })
 
     this.app.container.singleton('Repositories/UserRepository', (container) => {
-      // just make instance of app/Repositories/MessageRepository class
-        return container.make('App/Repositories/UserRepository')
+      return container.make('App/Repositories/UserRepository')
     })
 
-      this.app.container.singleton('Repositories/KickRepository', (container) => {
+    this.app.container.singleton('Repositories/KickRepository', (container) => {
       return container.make('App/Repositories/KickRepository')
     })
   }

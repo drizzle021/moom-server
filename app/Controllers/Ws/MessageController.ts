@@ -3,6 +3,7 @@ import type { MessageRepositoryContract } from '@ioc:Repositories/MessageReposit
 import { inject } from '@adonisjs/core/build/standalone'
 import { ChannelRepositoryContract } from '@ioc:Repositories/ChannelRepository'
 import { UserRepositoryContract } from '@ioc:Repositories/UserRepository'
+import { KickRepositoryContract } from '@ioc:Repositories/KickRepository'
 
 // inject repository from container to controller constructor
 // we do so because we can extract database specific storage to another class
@@ -13,13 +14,15 @@ import { UserRepositoryContract } from '@ioc:Repositories/UserRepository'
 @inject([
   'Repositories/MessageRepository',
   'Repositories/ChannelRepository',
-  'Repositories/UserRepository'
+  'Repositories/UserRepository',
+  'Repositories/KickRepository',
 ])
 export default class MessageController {
   constructor(
     private messageRepository: MessageRepositoryContract,
     private channelRepository: ChannelRepositoryContract,
-    private userRepository: UserRepositoryContract
+    private userRepository: UserRepositoryContract,
+    private kickRepository: KickRepositoryContract
   ) {}
 
 
@@ -41,20 +44,8 @@ export default class MessageController {
 
   public async inviteUser({ auth, socket }: WsContextContract, channelParam: string, userParam: string) {
     const channel = await this.channelRepository.findByName(channelParam)
-    const userToGetInvited = await this.userRepository.findByNickname(userParam)
-    // const error = checkForErrors(
-    //   {
-    //     userShouldExist: true,
-    //     userShouldNotBeInChannel: true,
-    //   },
-    //   {
-    //     channel: channel,
-    //     user: userToGetInvited,
-    //   }
-    // )
-    // if (error) {
-    //   return { error: error }
-    // }
+    const userToInvite = await this.userRepository.findByNickname(userParam)
+
     const isUserAdmin = channel.adminId === auth.user!.id
 
     if (!isUserAdmin && !channel.is_private) {
@@ -62,25 +53,22 @@ export default class MessageController {
     }
 
     // CHECK AND UNBAN USER
-    // const kickCount = await this.kickRepository.countUserKicks(
-    //   userToGetInvited!.id,
-    //   channel.id
-    // )
-    // if (!isUserAdmin) {
-    //   if (kickCount > 2) {
-    //     return {
-    //       error: 'This user is banned from this channel',
-    //     }
-    //   }
-    // } else {
-    //   // unban user
-    //   await this.kickRepository.deleteAllByUserIdAndChannelId(
-    //     userToGetInvited!.id,
-    //     channel.id
-    //   )
-    // }
+    const kickCount = await this.kickRepository.countUserKicks(userToInvite!.id, channel.id)
+    // USER IS BANNED
+    if (!isUserAdmin) {
+      if (kickCount > 2) {
+        return {
+          error: 'This user is banned from this channel',
+        }
+      }
+    } 
+    // UNBAN USER
+    else {
+      await this.kickRepository.unban(userToInvite!.id,channel.id)
+    }
 
-    await this.channelRepository.attachUser(userToGetInvited!, channel)
+    await this.channelRepository.attachUser(userToInvite!, channel)
+    socket.nsp.emit('userInvited', userToInvite, channel)
 
     return {
       success: true,
