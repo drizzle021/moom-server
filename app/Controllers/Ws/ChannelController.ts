@@ -197,4 +197,18 @@ export default class ChannelController {
       success: true,
     }
   }
+
+  public async currentlyTyping({ auth, socket, params }: WsContextContract, message: string) {
+    socket.nsp.emit('typing', 
+      {
+        channel: params.name,
+        message: {
+          author: auth.user!,
+          content: message
+        }
+      })
+    
+  }
+
+
 }
