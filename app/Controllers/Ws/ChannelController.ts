@@ -71,8 +71,7 @@ export default class ChannelController {
     }
 
     await this.channelRepository.attachUser(userToInvite!, channel)
-    const isrevoke = false
-    socket.nsp.emit('userInvited', userToInvite, channel, isrevoke)
+    socket.nsp.emit('userInvited', userToInvite, channel)
 
     return {
       success: true,
@@ -99,7 +98,7 @@ export default class ChannelController {
     if (channel.adminId === auth.user!.id) {
       console.log('delete')
       await this.channelRepository.delete(channel)
-      socket.broadcast.emit('channelDeleted', channel.name)
+      socket.nsp.emit('channelDeleted', channel.name)
     }
 
     // hova kellene kiirni hogy nem admin    ?
@@ -119,12 +118,8 @@ export default class ChannelController {
       return
     }
 
-    console.log(channel + userParam)
-
     if (channel.adminId === user.id) {
       await this.channelRepository.detachUser(userToRevoke, channel)
-      const isrevoke = true
-      // socket.nsp.emit('userInvited', userToRevoke, channel, isrevoke)
 
       socket.nsp.emit('userLeft', userToRevoke, channel)
     }
