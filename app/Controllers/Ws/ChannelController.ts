@@ -96,7 +96,6 @@ export default class ChannelController {
     const channel = await this.channelRepository.findByName(channelName)
 
     if (channel.adminId === auth.user!.id) {
-      console.log('delete')
       await this.channelRepository.delete(channel)
       socket.nsp.emit('channelDeleted', channel.name)
     }
@@ -131,10 +130,6 @@ export default class ChannelController {
 
     const channel = await this.channelRepository.findByName(channelName)
     const channel_private = channel.is_private
-    console.log(channel_private)
-    console.log('channel to kick from: ' + channel.name + ' <' + channel.is_private + '>')
-    console.log('kicker: ' + kicker.nickname)
-    console.log('user to kick: ' + userToKick?.nickname)
 
     // const error = checkForErrors(
     //   {
