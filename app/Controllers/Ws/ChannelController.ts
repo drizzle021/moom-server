@@ -78,16 +78,17 @@ export default class ChannelController {
     }
   }
 
-  public async leaveChannel({ params, auth, socket }: WsContextContract) {
+  public async leaveChannel({ auth, socket }: WsContextContract, channelName: string){
     const user = auth.user!
-    const channel = await this.channelRepository.findByName(params.name)
+    const channel = await this.channelRepository.findByName(channelName)
 
     if (channel.adminId === user.id) {
       await this.channelRepository.delete(channel)
       socket.broadcast.emit('channelDeleted', channel.name)
     } else {
-      await this.channelRepository.detachUser(user, channel)
       socket.broadcast.emit('userLeft', user, channel)
+      await this.channelRepository.detachUser(user, channel)
+      
     }
   }
 

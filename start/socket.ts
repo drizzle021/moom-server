@@ -16,12 +16,12 @@ Ws.namespace('/')
   .on('inviteUser', 'ChannelController.inviteUser')
   .on('revokeUser', 'ChannelController.revokeUser')
   .on('kickUser', 'ChannelController.kickUser')
+  .on('leaveChannel', 'ChannelController.leaveChannel')
 
 Ws.namespace('channels/:name')
   .on('loadMessages', 'MessageController.loadMessages')
   .on('addMessage', 'MessageController.addMessage')
   .on('addUser', 'ChannelController.addUser')
   .on('deleteChannel', 'ChannelController.deleteChannel')
-  .on('leaveChannel', 'ChannelController.leaveChannel')
   .on('currentlyTyping', 'ChannelController.currentlyTyping')
 
